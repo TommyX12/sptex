@@ -14,15 +14,21 @@ def compile(input_text):
     
     for input_line in input_lines:
         output_line = input_line
-        if output_line.strip().startswith(KEYWORD):
-            output_line = re.sub(r'^(\s*)SP', r'\1', output_line)
+        if re.search(r'^(\s*)%s\b' % (KEYWORD), output_line):
+            output_line = re.sub(r'^(\s*)%s\b' % KEYWORD, r'\1', output_line)
             output_line = re.sub(r'<=', r'\\leq', output_line)
             output_line = re.sub(r'>=', r'\\geq', output_line)
             output_line = re.sub(r'~=', r'\\approx', output_line)
             output_line = re.sub(r'~', r'\\sim', output_line)
-            output_line = re.sub(r'(?:integral|int) (?:from )?(.*) to (.*) of', r'\\int_{\1}^{\2}', output_line)
-            output_line = re.sub(r'sum (.*) (?:from )?to (.*) of', r'\\sum_{\1}^{\2}', output_line)
-            output_line = re.sub(r'(?:limit|lim) (.*) to (.*) of', r'\\lim_{\1\\to\2}', output_line)
+            output_line = re.sub(r'\^\*', r'^\\ast', output_line)
+            output_line = re.sub(r'\*', r'\\cdot', output_line)
+            output_line = re.sub(r'\.\.\.', r'\\hdots', output_line)
+            output_line = re.sub(r'(\b\w|\{[^\{\}]*\})C(\w\b|\{[^\{\}]*\})', r'\\binom{\1}{\2}', output_line)
+            output_line = re.sub(r'(\b\w|\{[^\{\}]*\})\s*/\s*(\w\b|\{[^\{\}]*\})', r'\\frac{\1}{\2}', output_line)
+            output_line = re.sub(r'\b(?:infty|inf|infinity)\b', r'\\infty', output_line)
+            output_line = re.sub(r'\b(?:integral|int)\b(.*)\bto\b(.*)\bof\b', r'\\int_{\1}^{\2}', output_line)
+            output_line = re.sub(r'\bsum\b(.*)\bto\b(.*)\bof\b', r'\\sum_{\1}^{\2}', output_line)
+            output_line = re.sub(r'\b(?:limit|lim)\b(.*)\bto\b(.*)\bof\b', r'\\lim_{\1\\to\2}', output_line)
             
         output_lines.append(output_line)
     
