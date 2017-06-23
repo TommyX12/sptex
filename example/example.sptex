@@ -1,0 +1,7 @@
+\documentclass[12pt]{article}
+
+\begin{document}
+	\[
+		SP P(0 <= S <= 5/2) = integral 0 to 5/2 of 1/2 * {4s^2}/625 ds
+	\]
+\end{document}

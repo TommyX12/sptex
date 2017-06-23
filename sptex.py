@@ -1,9 +1,13 @@
 import os, sys, glob
 import re
 from util import *
+from syntax import *
+from config import CUSTOM_SYNTAX_LIST
 
-OUTPUT_EXTENSION = '.tex'
-KEYWORD = 'SP'
+SYNTAX_LIST = [
+    # remove keyword
+    Replace(r'^(\s*)%s\b' % KEYWORD, r'\1'),
+] + CUSTOM_SYNTAX_LIST
 
 def get_default_output_path(input_path):
     return input_path[:input_path.rfind('.')] + OUTPUT_EXTENSION
@@ -15,22 +19,8 @@ def compile(input_text):
     for input_line in input_lines:
         output_line = input_line
         if re.search(r'^(\s*)%s\b' % (KEYWORD), output_line):
-            output_line = re.sub(r'^(\s*)%s\b' % KEYWORD, r'\1', output_line)
-            output_line = re.sub(r'<=', r'\\leq', output_line)
-            output_line = re.sub(r'>=', r'\\geq', output_line)
-            output_line = re.sub(r'~=', r'\\approx', output_line)
-            output_line = re.sub(r'~', r'\\sim', output_line)
-            output_line = re.sub(r'\^\*', r'^\\ast', output_line)
-            output_line = re.sub(r'\*', r'\\cdot', output_line)
-            output_line = re.sub(r'\.\.\.', r'\\hdots', output_line)
-            output_line = re.sub(r'(\b\w+|\{[^\{\}]*\})C(\w+\b|\{[^\{\}]*\})', r'\\binom{\1}{\2}', output_line)
-            output_line = re.sub(r'(\b\w+|\{[^\{\}]*\})\s*/\s*(\w+\b|\{[^\{\}]*\})', r'\\frac{\1}{\2}', output_line)
-            output_line = re.sub(r'\b(?:infty|inf|infinity)\b', r'\\infty', output_line)
-            output_line = re.sub(r'\b(?:integral|int)\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\int_{\1}^{\2}', output_line)
-            output_line = re.sub(r'\b(?:eval|evaluated?)\s+at\b', r'\\Big|_', output_line)
-            output_line = re.sub(r'\b(?:eval|evaluated?)\s+(?:from\s+)?(.*?)\s+to\b', r'\\Big|_{\1}^', output_line)
-            output_line = re.sub(r'\bsum\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\sum_{\1}^{\2}', output_line)
-            output_line = re.sub(r'\b(?:limit|lim)\s+(?:at\s+)(.*?)\s+to\s+(.*?)\s+of\b', r'\\lim_{\1\\to\2}', output_line)
+            for syntax in SYNTAX_LIST:
+                output_line = syntax.process_line(output_line)
             
         output_lines.append(output_line)
     
