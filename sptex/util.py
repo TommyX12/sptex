@@ -107,3 +107,6 @@ def align_indentation(lines, i, j):
     if min_indent >= 0:
         for k in range(i, j):
             lines[k] = lines[k][min_indent:]
+
+def indented_insert(line, part):
+    return insert(line, get_indentation_len(line), part)

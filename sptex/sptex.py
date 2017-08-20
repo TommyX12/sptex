@@ -9,6 +9,7 @@ def get_default_output_path(input_path):
 def get_indent_match(lines):
     result = [0 for i in range(len(lines))]
     indent_stack = [] # element: (line index, indentation)
+    j = 0
     for i in range(len(lines)):
         line = lines[i]
         if is_empty_line(line):
@@ -16,12 +17,14 @@ def get_indent_match(lines):
         
         cur_indent = get_indentation_len(line)
         while len(indent_stack) > 0 and top(indent_stack)[1] >= cur_indent:
-            result[indent_stack.pop()[0]] = i
+            result[indent_stack.pop()[0]] = j + 1
         
         indent_stack.append((i, cur_indent))
+        
+        j = i
 
     for entry in indent_stack:
-        result[entry[0]] = len(lines)
+        result[entry[0]] = j + 1
             
     return result
 
@@ -83,19 +86,12 @@ def eval_lines(lines):
 def compile(input_text):
     lines = input_text.split('\n')
     
-    for i in range(len(lines) - 1, -1, -1):
-        if is_empty_line(lines[i]):
-            lines.pop()
-        
-        else:
-            break
-    
     # first pass:
     indent_match = get_indent_match(lines)
     listify(lines, indent_match, 0, len(lines))
         
     # second pass:
-    return '\n'.join(eval_lines(lines) + [''])
+    return '\n'.join(eval_lines(lines))
 
 
 def main(argc, argv):

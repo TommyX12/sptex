@@ -194,11 +194,22 @@ class SP_ENV:
         self.env = env
     
     def run(self, lines):
+        lines[0] = indented_insert(lines[0], '\\begin{%s}' % self.env)
         top_indent = get_indentation(lines[0])
-        lines[0] = insert(lines[0], get_indentation_len(lines[0]), '\\begin{%s}' % self.env)
-        
         lines.append(top_indent + ('\\end{%s}' % self.env))
-        
+        return lines
+    
+class SP_LIST:
+    def run(self, lines):
+        return SP_ENV('itemize').run(lines)
+    
+class SP_ENUM:
+    def run(self, lines):
+        return SP_ENV('enumerate').run(lines)
+    
+class SP_ITEM:
+    def run(self, lines):
+        lines[0] = indented_insert(lines[0], '\\item ')
         return lines
     
 class SP_UPPER:
