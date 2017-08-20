@@ -38,6 +38,9 @@ def top(stack):
 def cut(string, i, j):
     return string[:i] + string[j:]
 
+def insert(string, i, part):
+    return string[:i] + part + string[i:]
+
 def dict_concat(src, dest):
     for key in src:
         dest[key] = src[key]

@@ -25,7 +25,8 @@ def get_indent_match(lines):
             
     return result
 
-def listify(lines, indent_match, row, end_row):
+def listify(lines, indent_match, start_row, end_row):
+    row = start_row
     while row < end_row:
         line = lines[row]
         if re.search(r'^\s*%s\s+\w+' % (MAIN_KEYWORD), line):
@@ -54,7 +55,7 @@ def listify(lines, indent_match, row, end_row):
             lines[row] += ')'
         
         else:
-            result = []
+            result = ['\'\'']
             #  lines[row] = escape_script_string(lines[row])
             # manually search to find SP(...). replace them with ' + SP(...) + '. only allow search inline
             i = 0
@@ -69,7 +70,6 @@ def listify(lines, indent_match, row, end_row):
                 j += len(MAIN_KEYWORD)
                 i = extract_paren(line, j)
                 result.append(MAIN_KEYWORD + '(\'' + escape_script_string(line[j + 1:i - 1]) + '\')')
-            
             lines[row] = '[' + '+'.join(result) + ']'
             
         lines[row] += '+'
@@ -83,12 +83,19 @@ def eval_lines(lines):
 def compile(input_text):
     lines = input_text.split('\n')
     
+    for i in range(len(lines) - 1, -1, -1):
+        if is_empty_line(lines[i]):
+            lines.pop()
+        
+        else:
+            break
+    
     # first pass:
     indent_match = get_indent_match(lines)
     listify(lines, indent_match, 0, len(lines))
         
     # second pass:
-    return '\n'.join(eval_lines(lines))
+    return '\n'.join(eval_lines(lines) + [''])
 
 
 def main(argc, argv):
