@@ -1,6 +1,6 @@
 \documentclass[12pt]{article}
 
-\begin{document}
+SP ENV('document')
     SP DEF f(n):
         if n <= 0:
             return 1
@@ -8,30 +8,36 @@
         return n * f(n - 1)
 
     SP DEF P(n, k):
-        return var.f(n) // var.f(n - k)
+        return f(n) // f(n - k)
 
     SP DEF C(n, k):
-        return var.f(n) // (var.f(k) * var.f(n - k))
+        return f(n) // (f(k) * f(n - k))
 
     SP DEF Bin(x, n, p):
-        return var.C(n, x) * p**x * (1 - p)**(n - x)
+        return C(n, x) * p**x * (1 - p)**(n - x)
 
     SP DEF BinE(n, p):
         return n * p
 
     SP DEF NBin(x, r, p):
-        return var.C(x + r - 1, r - 1) * p**r * (1 - p)**x
+        return C(x + r - 1, r - 1) * p**r * (1 - p)**x
 
     SP DEF Poisson(x, l):
-        return math.exp(-l) * l**x / var.f(x)
-
+        return math.exp(-l) * l**x / f(x)
+    
     SP EX
+        for i in range(1, 6):
+            put_line('The probability that %d customer comes while the average per hour is 6, is %.6f.' % (i, Poisson(i, 6)))
     
-    The probability that 3 customer comes while the average per hour is 6, is SP(var.Poisson(3, 6)).
-    
-    \[
-        SP SC P(0 <= S <= 5/2) = integral 0 to 5/2 of 1/2 * {4s^2}/625 ds
+    SP SC \[
+        P(0 <= S <= 5/2) = integral 0 to 5/2 of 1/2 * {4s^2}/625 ds
         
         SP() = PS
     \]
-\end{document}
+    SP ENV('itemize')
+        awet
+        asdf
+        safda
+        sdf
+    
+    
