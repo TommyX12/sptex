@@ -1,0 +1,13 @@
+? get ideas from doc
+
+make possible to import preprocessors from preset using python import statements.
+
+get useful util stuff from docstring generator
+
+read file
+
+    
+SP SC shortcut-processed latex
+SP DEF define python function that is usable everywhere
+? what about class?
+SP EXEC executes python code. maybe use self.var to store global?

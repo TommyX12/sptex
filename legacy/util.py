@@ -32,8 +32,4 @@ def escape_script_string(str):
     str = re.sub(r'([\\\"\'])', r'\\\1', str)
     return str
 
-def top(stack):
-    return stack[len(stack) - 1]
 
-def cut(string, i, j):
-    return string[:i] + string[j:]
