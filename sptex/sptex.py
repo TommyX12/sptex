@@ -43,8 +43,10 @@ def get_indent_match(lines):
             continue
         
         cur_indent = get_indentation_len(line)
-        while len(indent_stack) > 0 and top(indent_stack)[1] <= cur_indent:
+        while len(indent_stack) > 0 and top(indent_stack)[1] >= cur_indent:
             result[indent_stack.pop()[0]] = i
+        
+        indent_stack.append((i, cur_indent))
 
     for entry in indent_stack:
         result[entry[0]] = len(lines)
@@ -52,7 +54,9 @@ def get_indent_match(lines):
     return result
 
 def extract_paren(line, i):
-    if (line[i] != '(') return i
+    if line[i] != '(':
+        return i
+    
     cnt = 1
     i += 1
     while i < len(line):
@@ -78,8 +82,8 @@ def listify(lines, indent_match, row, end_row):
             sp_start = skip_white_space(line, indent_len + len(MAIN_KEYWORD))
             sp_end = skip_word_char(line, sp_start)
             arg_start = sp_end
-            arg_end = extract_paren(arg_start)
-            first_line_start = skip_white_space(arg_end)
+            arg_end = extract_paren(line, arg_start)
+            first_line_start = skip_white_space(line, arg_end)
             
             sp_text = MAIN_KEYWORD + '_' + line[sp_start:arg_end]
             if arg_start == arg_end:
@@ -88,7 +92,7 @@ def listify(lines, indent_match, row, end_row):
             sp_text += '.run('
             
             # remove the parts about preprocessor name, arguments (...), space to first char.
-            lines[row] = cut(lines[row], sp_start, first_line_start)
+            lines[row] = cut(lines[row], indent_len, first_line_start)
             
             listify(lines, indent_match, row, indent_match[row])
             
@@ -97,19 +101,23 @@ def listify(lines, indent_match, row, end_row):
             lines[row] += ')'
         
         else:
-            result = '['
+            result = []
             #  lines[row] = escape_script_string(lines[row])
             # manually search to find SP(...). replace them with ' + SP(...) + '. only allow search inline
             i = 0
             pat = MAIN_KEYWORD + '('
             while i < len(line):
-                i = line.find(pat, i)
-                if i < 0:
-                    result += '\'' + escape_script_string(line[i:])
+                j = line.find(pat, i)
+                if j < 0:
+                    result.append('\'' + escape_script_string(line[i:]) + '\'')
+                    break
                 
+                result.append('\'' + escape_script_string(line[i:j]) + '\'')
+                j += len(MAIN_KEYWORD)
+                i = extract_paren(line, j)
+                result.append(MAIN_KEYWORD + '(\'' + escape_script_string(line[j + 1:i - 1]) + '\')')
             
-            result += '\']'
-            lines[row] = result
+            lines[row] = '[' + '+'.join(result) + ']'
             
         lines[row] += '+'
         row += 1
@@ -125,6 +133,10 @@ def compile(input_text):
     # first pass:
     indent_match = get_indent_match(lines)
     listify(lines, indent_match, 0, len(lines))
+    
+    print("-----------")
+    print('\n'.join(['('] + lines + [')']))
+    print("-----------")
         
     # second pass:
     return '\n'.join(eval_lines(lines))
@@ -155,8 +167,7 @@ if __name__ == '__main__':
     
     
 
-test_input = """
-SP A() the quick brown
+test_input = """SP UPPER() the quick brown
     fox jumped
     over the SP(2 + 3)
     SP B() HAIDOMO
@@ -165,17 +176,15 @@ SP A() the quick brown
         world
     
     lazy dog
-
 testing other things
 hi
 """
 
-print('\n'.join(eval(
-"""
+test_intermediate = """
 (
-SP_A().run(['the quick brown'] + 
+SP_UPPER().run(['the quick brown'] + 
 ['    fox jumped'] + 
-['    over the ' + SP(2 + 3) + ''] + 
+['    over the ' + SP('2 + 3') + ''] + 
 SP_B().run(['    HAIDOMO'] + []) + 
 SP_C().run(['    test title'] +
 ['        ' + SP() + ' hello'] + 
@@ -186,6 +195,13 @@ SP_C().run(['    test title'] +
 ['hi'] + []
 )
 """
+
+print("-----------")
+print(test_intermediate)
+print("-----------")
+
+print('\n'.join(eval(
+    test_intermediate
 )))
 
 print("---------------------------------")
