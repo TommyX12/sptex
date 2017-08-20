@@ -6,34 +6,6 @@ from syntax import *
 def get_default_output_path(input_path):
     return input_path[:input_path.rfind('.')] + OUTPUT_EXTENSION
 
-def get_indentation_len(line):
-    ptr = 0
-    while ptr < len(line):
-        if line[ptr] != ' ' and line[ptr] != '\t':
-            break
-        
-        ptr += 1
-        
-    return ptr
-
-def get_indentation(line):
-    return line[:get_indentation_len(line)]
-
-def is_empty_line(line):
-    return len(line.lstrip()) == 0
-
-def skip(line, i, chars):
-    while i < len(line) and line[i] in chars:
-        i += 1
-    
-    return i
-
-def skip_white_space(line, i):
-    return skip(line, i, ' \t\n')
-
-def skip_word_char(line, i):
-    return skip(line, i, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
-
 def get_indent_match(lines):
     result = [0 for i in range(len(lines))]
     indent_stack = [] # element: (line index, indentation)
@@ -52,25 +24,6 @@ def get_indent_match(lines):
         result[entry[0]] = len(lines)
             
     return result
-
-def extract_paren(line, i):
-    if line[i] != '(':
-        return i
-    
-    cnt = 1
-    i += 1
-    while i < len(line):
-        if line[i] == '(':
-            cnt += 1
-        
-        elif line[i] == ')':
-            cnt -= 1
-            if cnt == 0:
-                return i + 1
-        
-        i += 1
-    
-    return len(line)
 
 def listify(lines, indent_match, row, end_row):
     while row < end_row:
@@ -133,10 +86,6 @@ def compile(input_text):
     # first pass:
     indent_match = get_indent_match(lines)
     listify(lines, indent_match, 0, len(lines))
-    
-    print("-----------")
-    print('\n'.join(['('] + lines + [')']))
-    print("-----------")
         
     # second pass:
     return '\n'.join(eval_lines(lines))
@@ -166,44 +115,3 @@ if __name__ == '__main__':
     pass
     
     
-
-test_input = """SP UPPER() the quick brown
-    fox jumped
-    over the SP(2 + 3)
-    SP B() HAIDOMO
-    SP C() test title
-        SP() hello
-        world
-    
-    lazy dog
-testing other things
-hi
-"""
-
-test_intermediate = """
-(
-SP_UPPER().run(['the quick brown'] + 
-['    fox jumped'] + 
-['    over the ' + SP('2 + 3') + ''] + 
-SP_B().run(['    HAIDOMO'] + []) + 
-SP_C().run(['    test title'] +
-['        ' + SP() + ' hello'] + 
-['        world'] + []) + 
-['    '] + 
-['    lazy dog'] + []) + 
-['testing other things'] + 
-['hi'] + []
-)
-"""
-
-print("-----------")
-print(test_intermediate)
-print("-----------")
-
-print('\n'.join(eval(
-    test_intermediate
-)))
-
-print("---------------------------------")
-
-print(compile(test_input))

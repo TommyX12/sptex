@@ -37,3 +37,68 @@ def top(stack):
 
 def cut(string, i, j):
     return string[:i] + string[j:]
+
+def dict_concat(src, dest):
+    for key in src:
+        dest[key] = src[key]
+
+def get_indentation_len(line):
+    ptr = 0
+    while ptr < len(line):
+        if line[ptr] != ' ' and line[ptr] != '\t':
+            break
+        
+        ptr += 1
+        
+    return ptr
+
+def get_indentation(line):
+    return line[:get_indentation_len(line)]
+
+def is_empty_line(line):
+    return len(line.lstrip()) == 0
+
+def skip(line, i, chars):
+    while i < len(line) and line[i] in chars:
+        i += 1
+    
+    return i
+
+def skip_white_space(line, i):
+    return skip(line, i, ' \t\n')
+
+def skip_word_char(line, i):
+    return skip(line, i, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+
+def extract_paren(line, i):
+    if i >= len(line) or line[i] != '(':
+        return i
+    
+    cnt = 1
+    i += 1
+    while i < len(line):
+        if line[i] == '(':
+            cnt += 1
+        
+        elif line[i] == ')':
+            cnt -= 1
+            if cnt == 0:
+                return i + 1
+        
+        i += 1
+    
+    return len(line)
+
+def align_indentation(lines, i, j):
+    min_indent = -1
+    for k in range(i, j):
+        if is_empty_line(lines[k]):
+            continue
+        
+        cur_indent = get_indentation_len(lines[k])
+        if min_indent == -1 or cur_indent < min_indent:
+            min_indent = cur_indent
+    
+    if min_indent >= 0:
+        for k in range(i, j):
+            lines[k] = lines[k][min_indent:]
