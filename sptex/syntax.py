@@ -26,17 +26,33 @@ class EXEC_ENGINE():
     def __init__(self):
         self.locals = {}
     
-    def _exec(var, expr):
+    def _exec(var, expr, indent = ''):
+        var._return_string = ''
+        def put(string):
+            if len(var._return_string) == 0 or var._return_string.endswith('\n'):
+                var._return_string += indent
+                
+            var._return_string += str(string)
+            
+        def put_line(string):
+            put(string)
+            put('\n')
+            
         _env = {}
+        
         dict_concat(var.locals, _env)
         dict_concat(locals(), _env)
+        
         exec(expr, None, _env)
+        
+        return var._return_string.split('\n')
         
     def _eval(var, expr):
         _env = {}
         dict_concat(var.locals, _env)
         dict_concat(locals(), _env)
-        return eval(expr, _env)
+        print('env is:', _env)
+        return eval(expr, None, _env)
         
     def _get_current():
         if EXEC_ENGINE._current == None:
@@ -108,10 +124,11 @@ class SP_SC():
     
 class SP_EX():
     def run(self, lines):
+        first_indentation = get_indentation(lines[0])
         lines[0] = lines[0].lstrip()
         align_indentation(lines, 1, len(lines))
-        EXEC_ENGINE._get_current()._exec('\n'.join(lines))
-        return []
+        return_lines = EXEC_ENGINE._get_current()._exec('\n'.join(lines), first_indentation)
+        return return_lines
 
 class SP_SAVE():
     def __init__(self, var_name):
@@ -135,7 +152,8 @@ class SP_DEF():
             lines[0] += ':'
         
         align_indentation(lines, 0, len(lines))
-        lines.append('EXEC_ENGINE._get_current()._add_env(\'%s\', %s)' % (func_name, func_name))
+        # lines.append('EXEC_ENGINE._get_current()._add_env(\'%s\', %s)' % (func_name, func_name))
+        lines.append('var.%s = %s' % (func_name, func_name))
         EXEC_ENGINE._get_current()._exec('\n'.join(lines))
         return []
 
@@ -150,7 +168,8 @@ class SP_CLASS():
             lines[0] += ':'
         
         align_indentation(lines, 0, len(lines))
-        lines.append('EXEC_ENGINE._get_current()._add_env(\'%s\', %s)' % (class_name, class_name))
+        # lines.append('EXEC_ENGINE._get_current()._add_env(\'%s\', %s)' % (class_name, class_name))
+        lines.append('var.%s = %s' % (class_name, class_name))
         EXEC_ENGINE._get_current()._exec('\n'.join(lines))
         return []
 

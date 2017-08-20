@@ -111,7 +111,7 @@ def main(argc, argv):
     return 0
 
 if __name__ == '__main__':
-    # main(len(sys.argv), sys.argv)
+    main(len(sys.argv), sys.argv)
     pass
     
     

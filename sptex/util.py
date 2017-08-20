@@ -41,6 +41,8 @@ def cut(string, i, j):
 def dict_concat(src, dest):
     for key in src:
         dest[key] = src[key]
+    
+    return dest
 
 def get_indentation_len(line):
     ptr = 0
