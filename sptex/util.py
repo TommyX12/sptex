@@ -94,19 +94,48 @@ def extract_paren(line, i):
     
     return len(line)
 
-def align_indentation(lines, i, j):
-    min_indent = -1
+def align_indentation(lines, i = 0, j = -1, offset = ''):
+    if j < 0:
+        j = len(lines)
+    
+    min_indent_len = -1
+    min_indent = ''
     for k in range(i, j):
         if is_empty_line(lines[k]):
             continue
         
         cur_indent = get_indentation_len(lines[k])
-        if min_indent == -1 or cur_indent < min_indent:
-            min_indent = cur_indent
+        if min_indent_len == -1 or cur_indent < min_indent_len:
+            min_indent_len = cur_indent
+            min_indent = lines[k][:cur_indent]
     
-    if min_indent >= 0:
+    if min_indent_len >= 0:
         for k in range(i, j):
-            lines[k] = lines[k][min_indent:]
+            lines[k] = offset + lines[k][min_indent_len:]
+    
+    return min_indent
+
+def add_indentation(lines, indent, i = 0, j = -1):
+    if j < 0:
+        j = len(lines)
+    
+    for k in range(i, j):
+        lines[k] = indent + lines[k]
 
 def indented_insert(line, part):
     return insert(line, get_indentation_len(line), part)
+
+def has_stripped_suffix(string, suffix):
+    if len(string) == 0 or len(suffix) == 0:
+        return False
+    
+    i = len(string) - 1
+    while i >= 0 and string[i] in ' \t\n':
+        i -= 1
+    
+    j = len(suffix) - 1
+    while i >= 0 and j >= 0 and string[i] == suffix[j]:
+        i -= 1
+        j -= 1
+    
+    return j < 0

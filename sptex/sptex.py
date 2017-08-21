@@ -32,7 +32,7 @@ def listify(lines, indent_match, start_row, end_row):
     row = start_row
     while row < end_row:
         line = lines[row]
-        if re.search(r'^\s*%s\s+\w+' % (MAIN_KEYWORD), line):
+        if re.search(r'^\s*{0}\s+\w+'.format(MAIN_KEYWORD), line):
             # manual splitting that finds indentation, preprocessor name, arguments (...), and first char.
             indent_len = get_indentation_len(line)
             indent = line[:indent_len]
@@ -58,7 +58,8 @@ def listify(lines, indent_match, start_row, end_row):
             lines[row] += ')'
         
         else:
-            result = ['\'\'']
+            #  result = ['\'\'']
+            result = ['\'\''] if row == start_row else []
             #  lines[row] = escape_script_string(lines[row])
             # manually search to find SP(...). replace them with ' + SP(...) + '. only allow search inline
             i = 0
@@ -81,6 +82,10 @@ def listify(lines, indent_match, start_row, end_row):
     lines[row - 1] += '[]'
     
 def eval_lines(lines):
+    def _add_sp(key, value):
+        globals()[MAIN_KEYWORD + '_' + key] = value
+            
+    EXEC_ENGINE.get_current()._set_add_sp_func(_add_sp)
     return eval('\n'.join(['('] + lines + [')']))
     
 def compile(input_text):
@@ -89,14 +94,14 @@ def compile(input_text):
     # first pass:
     indent_match = get_indent_match(lines)
     listify(lines, indent_match, 0, len(lines))
-        
+    
     # second pass:
     return '\n'.join(eval_lines(lines))
 
 
 def main(argc, argv):
     if argc < 2 or argc > 3:
-        print('usage: python %s input_path [output_path]' % argv[0])
+        print('usage: python {0} input_path [output_path]'.format(argv[0]))
         return 1
     
     input_path = argv[1]

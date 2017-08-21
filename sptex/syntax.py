@@ -1,6 +1,7 @@
 import math
 import re
 from util import *
+from fractions import *
 
 OUTPUT_EXTENSION = '.tex'
 MAIN_KEYWORD = 'SP'
@@ -27,6 +28,7 @@ class EXEC_ENGINE:
     def __init__(self):
         # self.locals = {}
         self._cur_indent = ''
+        self._ans        = None
         pass
     
     def _exec(var, expr, indent = ''):
@@ -47,7 +49,9 @@ class EXEC_ENGINE:
         # dict_concat(locals(), _env)
         
         # return eval(expr, None, _env)
-        return eval(expr)
+        ans = var._ans
+        var._ans = eval(expr)
+        return var._ans
         
     def get_current():
         if EXEC_ENGINE._current == None:
@@ -66,6 +70,9 @@ class EXEC_ENGINE:
     def _add_env(self, key, value):
         # self.locals[key] = value
         globals()[key] = value
+    
+    def _set_add_sp_func(self, func):
+        self._add_sp = func
 
 def put(string):
     var = EXEC_ENGINE.get_current()
@@ -118,8 +125,7 @@ class SP_DEF:
             lines[0] += ':'
         
         align_indentation(lines, 0, len(lines))
-        lines.append('EXEC_ENGINE.get_current()._add_env(\'%s\', %s)' % (func_name, func_name))
-        #  lines.append('var.%s = %s' % (func_name, func_name))
+        lines.append('EXEC_ENGINE.get_current()._add_env(\'{0}\', {0})'.format(func_name))
         EXEC_ENGINE.get_current()._exec('\n'.join(lines))
         return []
 
@@ -132,8 +138,54 @@ class SP_CLASS:
             lines[0] += ':'
         
         align_indentation(lines, 0, len(lines))
-        lines.append('EXEC_ENGINE.get_current()._add_env(\'%s\', %s)' % (class_name, class_name))
-        #  lines.append('var.%s = %s' % (class_name, class_name))
+        lines.append('EXEC_ENGINE.get_current()._add_env(\'{0}\', {0})'.format(class_name))
+        EXEC_ENGINE.get_current()._exec('\n'.join(lines))
+        return []
+
+class SP_SPDEF:
+    def run(self, lines):
+        lines[0] = lines[0].lstrip()
+        class_name_end = skip_word_char(lines[0], 0)
+        class_name = lines[0][:class_name_end]
+        arg_start = class_name_end
+        arg_end = extract_paren(lines[0], arg_start)
+        if arg_start == arg_end:
+            args     = []
+            defaults = []
+            
+        else:
+            args     = lines[0][arg_start + 1:arg_end - 1].split(',')
+            defaults = ['' for i in args]
+            for i in range(len(args)):
+                ind = args[i].find('=')
+                if ind >= 0:
+                    defaults[i] = args[i][ind:]
+                    args[i] = args[i][:ind].strip()
+        
+        lines[0] = 'class ' + MAIN_KEYWORD + '_' + cut(lines[0], arg_start, arg_end)
+        if not lines[0].endswith(':'):
+            lines[0] += ':'
+        
+        align_indentation(lines, 1, len(lines), '        ')
+        lines = insert(lines, 1, 
+        [
+            '    def __init__('
+            + ','.join(['self'] + [args[i] + defaults[i] for i in range(len(args))])
+            + '):',
+        ]
+        + [
+            '        self.{0}={0}'.format(arg) for arg in args
+        ]
+        + [
+            '        pass',
+            '    def run(self, lines):',
+        ]
+        + [
+            '        {0}=self.{0}'.format(arg) for arg in args
+        ]
+        )
+        
+        lines.append('EXEC_ENGINE.get_current()._add_sp(\'{0}\', {1})'.format(class_name, MAIN_KEYWORD + '_' + class_name))
         EXEC_ENGINE.get_current()._exec('\n'.join(lines))
         return []
 
@@ -176,7 +228,7 @@ SHORTCUT_LIST = [
     Replace(r'\b(?:eval|evaluated?)\s+(?:from\s+)?(.*?)\s+to\b', r'\\Big|_{\1}^'),
     
     # sum from i = a to b of f(x)
-    Replace(r'\bsum\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\sum_{\1}^{\2}'),
+    Replace(r'\b(sum|prod)\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\\1_{\2}^{\3}'),
     
     # limit at x to infinity of f(x)
     Replace(r'\b(?:limit|lim)\s+(?:at\s+)(.*?)\s+to\s+(.*?)\s+of\b', r'\\lim_{\1 \\to \2}'),
@@ -198,24 +250,56 @@ class SP_ENV:
         self.env = env
     
     def run(self, lines):
-        lines[0] = indented_insert(lines[0], '\\begin{%s}' % self.env)
+        lines[0] = indented_insert(lines[0], '\\begin{{{0}}}'.format(self.env))
         top_indent = get_indentation(lines[0])
-        lines.append(top_indent + ('\\end{%s}' % self.env))
+        lines.append(top_indent + ('\\end{{{0}}}'.format(self.env)))
         return lines
+    
+class SP_DOCUMENT:
+    def __init__(self, size = '12pt', doc_class = 'article'):
+        self.size = size
+        self.doc_class = doc_class
+    
+    def run(self, lines):
+        lines.insert(0, '\\documentclass[{0}]{{{1}}}'.format(self.size, self.doc_class))
+        
+        return lines
+    
+class SP_PACKAGES:
+    def run(self, lines):
+        for i in range(len(lines)):
+            if is_empty_line(lines[i]):
+                continue
+            
+            lines[i] = '\\usepackage{' + lines[i].strip() + '}'
+        
+        return lines
+    
+class SP_BODY:
+    def run(self, lines):
+        return SP_ENV('document').run(lines)
     
 class SP_LIST:
+    def __init__(self, ordered = False, bullet_char = '-'):
+        self.ordered     = ordered
+        self.bullet_char = bullet_char
+        
     def run(self, lines):
-        return SP_ENV('itemize').run(lines)
-    
-class SP_ENUM:
-    def run(self, lines):
-        return SP_ENV('enumerate').run(lines)
-    
-class SP_ITEM:
-    def run(self, lines):
-        lines[0] = indented_insert(lines[0], '\\item ')
-        return lines
-    
+        bullet_indent = None
+        for i in range(1, len(lines)):
+            line = lines[i]
+            if re.search(r'^\s*{0}\s+'.format(self.bullet_char), line):
+                bullet_indent = get_indentation(line)
+                break
+        
+        if bullet_indent != None:
+            for i in range(1, len(lines)):
+                lines[i] = re.sub(r'^{0}{1}'.format(bullet_indent, self.bullet_char), bullet_indent + '\\item ', lines[i])
+        
+        env = 'enumerate' if self.ordered else 'itemize'
+        
+        return SP_ENV(env).run(lines)
+
 class SP_UPPER:
     def run(self, lines):
         for i in range(len(lines)):
@@ -223,3 +307,141 @@ class SP_UPPER:
             
         return lines
 
+class SP_AUTOBR:
+    def __init__(self, start = 0, end = -1, include_last = False):
+        self.start        = start
+        self.end          = end
+        self.include_last = include_last
+        
+    def run(self, lines):
+        j = -1
+        end = len(lines) if self.end < 0 else self.end
+        for i in range(self.start, end):
+            if not is_empty_line(lines[i]):
+                if self.include_last:
+                    j = i
+                
+                if j >= 0 and not has_stripped_suffix(lines[j], '\\\\'):
+                    lines[j] += ' \\\\'
+                
+                j = i
+        
+        return lines
+
+class SP_TABLE:
+    def __init__(self,
+            centered        = True,
+            hlines          = True,
+            auto_line_break = True):
+        
+        self.centered = centered
+        self.hlines   = hlines
+        self.auto_line_break = auto_line_break
+    
+    def run(self, lines):
+        if self.auto_line_break:
+            lines = SP_AUTOBR(1, len(lines), True).run(lines)
+        
+        if self.hlines:
+            min_indent = align_indentation(lines, 1)
+            for i in range(1, len(lines)):
+                lines[i] += ' \\hline '
+                
+            lines.insert(1, '\\hline ')
+            add_indentation(lines, min_indent, 1)
+        
+        lines[0] = indented_insert(lines[0], '{')
+        lines[0] += '}'
+        lines = SP_ENV('tabular').run(lines)
+        if self.centered:
+            lines = SP_ENV('center').run(lines)
+            
+        return lines
+
+class SP_EQU:
+    def __init__(self,
+            tag                = None,
+            aligned            = True,
+            auto_line_break    = True,
+            auto_align         = True,
+            auto_align_marks   = [ '=', '\\approx'],
+            auto_align_all     = False,
+            whitespace_spacing = True):
+        
+        self.tag                = tag
+        self.aligned            = aligned
+        self.auto_align         = auto_align
+        self.auto_align_marks   = auto_align_marks
+        self.auto_line_break    = auto_line_break
+        self.auto_align_all     = auto_align_all
+        self.whitespace_spacing = whitespace_spacing
+    
+    def run(self, lines):
+        if self.auto_line_break:
+            lines = SP_AUTOBR().run(lines)
+        
+        if self.aligned and self.auto_align and self.auto_align_marks != None and len(self.auto_align_marks) > 0:
+            for i in range(len(lines)):
+                line = lines[i]
+                braces_match = [0 for i in range(len(line))]
+                cnt = 0
+                for j in range(len(line)):
+                    braces_match[j] = cnt
+                    if line[j] == '{':
+                        cnt += 1
+                    
+                    elif line[j] == '}':
+                        cnt -= 1
+                    
+                for mark in self.auto_align_marks:
+                    j = 0
+                    k = True
+                    while True:
+                        j = line.find(mark, j)
+                        if j >= len(line) or j < 0:
+                            break
+                        
+                        if braces_match[j] != 0:
+                            j += 1
+                            continue
+                        
+                        if j == 0 or line[j - 1] != '&':
+                            line = insert(line, j, '&' if k else '&&')
+                        
+                        if not self.auto_align_all:
+                            break
+                        
+                        j += 1 if k else 2
+                        k = not k
+                        
+                        j += 1
+                        
+                lines[i] = line
+                
+        if self.whitespace_spacing:
+            for i in range(len(lines)):
+                indent_len = get_indentation_len(lines[i])
+                lines[i] = lines[i][:indent_len] + re.sub(r'  ', r'~', lines[i][indent_len:])
+        
+        env = 'align' if self.aligned else 'gather'
+        if self.tag == None or len(self.tag) == 0:
+            env += '*'
+        
+        elif self.tag == 'auto':
+            pass
+        
+        else:
+            lines[0] = indented_insert(lines[0], '\\tag{{0}} '.format(self.tag))
+        
+        return SP_ENV(env).run(lines)
+
+class SP_CODE:
+    def __init__(self, auto_line_break = True):
+        self.auto_line_break = auto_line_break
+        
+    def run(self, lines):
+        if self.auto_line_break:
+            lines = SP_AUTOBR().run(lines)
+        
+        lines[0] = indented_insert(lines[0], '\\ttfamily ')
+        return lines
