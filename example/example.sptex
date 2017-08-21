@@ -33,6 +33,7 @@ SP SPDEF NOINDENT:
     
 SP BODY
     SP NOINDENT SP AUTOBR
+        A demo of put():
         Given that the average customers per hour is 4,
         SP EX
             for i in range(1, 5):
@@ -52,6 +53,9 @@ SP BODY
     
     SP LIST(ordered = True)
         - \lipsum[1]
+            Embedded equation:
+            SP EQU SP SC \zeta(s) = sum n = 1 to inf of 1/{n^s} = lim N to inf of \left(sum n = 1 to N of 1/{n^s}\right)
+            
         - \lipsum[2]
         - Nested enumerations
         SP LIST(True) % short form, similar to calling functions

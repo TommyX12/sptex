@@ -82,11 +82,7 @@ def listify(lines, indent_match, start_row, end_row):
     lines[row - 1] += '[]'
     
 def eval_lines(lines):
-    def _add_sp(key, value):
-        globals()[MAIN_KEYWORD + '_' + key] = value
-            
-    EXEC_ENGINE.get_current()._set_add_sp_func(_add_sp)
-    return eval('\n'.join(['('] + lines + [')']))
+    return EXEC_ENGINE.eval_top_level('\n'.join(['('] + lines + [')']))
     
 def compile(input_text):
     lines = input_text.split('\n')

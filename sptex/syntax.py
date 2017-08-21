@@ -8,20 +8,6 @@ MAIN_KEYWORD = 'SP'
 
 global_data = {}
 
-class LineProcessor:
-    def process_line(self, line):
-        return line
-
-class Replace(LineProcessor):
-    def __init__(self, pattern, replacement):
-        LineProcessor.__init__(self)
-
-        self.pattern = pattern
-        self.replacement = replacement
-    
-    def process_line(self, line):
-        return re.sub(self.pattern, self.replacement, line)
-
 class EXEC_ENGINE:
     _current = None
     _cleared_globals = None
@@ -63,6 +49,9 @@ class EXEC_ENGINE:
         
         return EXEC_ENGINE._current
     
+    def eval_top_level(expr):
+        return eval(expr)
+    
     def _reset():
         EXEC_ENGINE._current = None
         if EXEC_ENGINE._cleared_globals != None:
@@ -73,9 +62,6 @@ class EXEC_ENGINE:
     def _add_env(self, key, value):
         # self.locals[key] = value
         globals()[key] = value
-    
-    def _set_add_sp_func(self, func):
-        self._add_sp = func
 
 def put(string):
     var = EXEC_ENGINE.get_current()
@@ -189,9 +175,23 @@ class SP_SPDEF:
         ]
         )
         
-        lines.append('EXEC_ENGINE.get_current()._add_sp(\'{0}\', {1})'.format(class_name, MAIN_KEYWORD + '_' + class_name))
+        lines.append('EXEC_ENGINE.get_current()._add_env(\'{0}\', {0})'.format(MAIN_KEYWORD + '_' + class_name))
         EXEC_ENGINE.get_current()._exec('\n'.join(lines))
         return []
+
+class LineProcessor:
+    def process_line(self, line):
+        return line
+
+class Replace(LineProcessor):
+    def __init__(self, pattern, replacement):
+        LineProcessor.__init__(self)
+
+        self.pattern = pattern
+        self.replacement = replacement
+    
+    def process_line(self, line):
+        return re.sub(self.pattern, self.replacement, line)
 
 SHORTCUT_LIST = [
     # <= and >=
@@ -235,7 +235,7 @@ SHORTCUT_LIST = [
     Replace(r'\b(sum|prod)\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\\1_{\2}^{\3}'),
     
     # limit at x to infinity of f(x)
-    Replace(r'\b(?:limit|lim)\s+(?:at\s+)(.*?)\s+to\s+(.*?)\s+of\b', r'\\lim_{\1 \\to \2}'),
+    Replace(r'\b(?:limit|lim)\s+(?:at\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\lim_{\1 \\to \2}'),
 ]
 
 #  from config import CUSTOM_SHORTCUT_LIST
