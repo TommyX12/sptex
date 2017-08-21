@@ -41,6 +41,9 @@ class EXEC_ENGINE:
         #  exec(expr, None, _env)
         exec(expr)
         
+        if var._return_string.endswith('\n'):
+            var._return_string = var._return_string[:-1]
+        
         return var._return_string.split('\n')
         
     def _eval(var, expr):
@@ -108,9 +111,10 @@ class SP_SAVE:
         self.var_name = var_name
         
     def run(self, lines):
-        new = []
-        for line in lines:
-            new.append('\'' + escape_script_string(line) + '\'')
+        new = [
+            '\'' + escape_script_string(line) + '\''
+            for line in lines
+        ]
         
         EXEC_ENGINE.get_current()._exec('var.' + self.var_name + '=[' + ','.join(new) + ']')
         
@@ -308,7 +312,7 @@ class SP_UPPER:
         return lines
 
 class SP_AUTOBR:
-    def __init__(self, start = 0, end = -1, include_last = False):
+    def __init__(self, start = 0, end = -1, include_last = True):
         self.start        = start
         self.end          = end
         self.include_last = include_last
@@ -340,7 +344,7 @@ class SP_TABLE:
     
     def run(self, lines):
         if self.auto_line_break:
-            lines = SP_AUTOBR(1, len(lines), True).run(lines)
+            lines = SP_AUTOBR(1, len(lines)).run(lines)
         
         if self.hlines:
             min_indent = align_indentation(lines, 1)
@@ -378,7 +382,7 @@ class SP_EQU:
     
     def run(self, lines):
         if self.auto_line_break:
-            lines = SP_AUTOBR().run(lines)
+            lines = SP_AUTOBR(include_last = False).run(lines)
         
         if self.aligned and self.auto_align and self.auto_align_marks != None and len(self.auto_align_marks) > 0:
             for i in range(len(lines)):

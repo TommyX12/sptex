@@ -2,39 +2,39 @@
 
 
 \usepackage{amsmath}
+\usepackage{lipsum}
+    
     
     
 \begin{document}
     
-        A
-        B
-        C
-a = 5, b = 5
+        \noindent
+        Given that the average customers per hour is 4, \\
+        The probability that 1 customer comes within the next hour is 0.073263. \\
+        The probability that 2 customers comes within the next hour is 0.146525. \\
+        The probability that 3 customers comes within the next hour is 0.195367. \\
+        The probability that 4 customers comes within the next hour is 0.195367. \\
+        
+        \noindent
+        A second paragraph also without indent. \\
     
-    Given that the average customers per hour is 4,
-    
-    The probability that 1 customer comes within the next hour is 0.073263.
-    
-    The probability that 2 customers comes within the next hour is 0.146525.
-    
-    The probability that 3 customers comes within the next hour is 0.195367.
-    
-    The probability that 4 customers comes within the next hour is 0.195367.
-    
-
-    
+    Lists:
     \begin{itemize}
         \item  2 + 2 = 4
-        \item  awet
-        \item  safda
-        \item  sdf
+        \item  3 + 3 = 6
+        \item  15 choose 4 is: 1365
+
+        \item  22 choose 7 is: 170544
     \end{itemize}
     
     \begin{enumerate}
-        \item  3 + 3 = 6
-        \item  asdf
-        \item  safda
-        \item  sdf
+        \item  \lipsum[1]
+        \item  \lipsum[2]
+        \item  Nested enumerations
+        \begin{enumerate}% short form, similar to calling functions
+            \item  \lipsum[3]
+            \item  \lipsum[4]
+        \end{enumerate}
     \end{enumerate}
     
     \begin{align*}
@@ -62,5 +62,5 @@ a = 5, b = 5
             if n <= 0: \\
                 return 1 \\
             
-            return n * f(n - 1)}
+            return n * f(n - 1) \\}
 \end{document}
