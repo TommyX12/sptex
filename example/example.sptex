@@ -39,9 +39,11 @@ SP BODY
         c
     
     Given that the average customers per hour is 4,
+    
     SP EX
         for i in range(1, 5):
             put_line('The probability that {} customer{} comes within the next hour is {:.6f}.'.format(i, 's' if i > 1 else '', Poisson(i, 4)))
+            put_line('')
     
     SP LIST
         - 2 + 2 = SP(2 + 2)

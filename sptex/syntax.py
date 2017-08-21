@@ -443,5 +443,6 @@ class SP_CODE:
         if self.auto_line_break:
             lines = SP_AUTOBR().run(lines)
         
-        lines[0] = indented_insert(lines[0], '\\ttfamily ')
+        lines[0] = indented_insert(lines[0], '{\\ttfamily ')
+        lines[len(lines) - 1] += '}'
         return lines

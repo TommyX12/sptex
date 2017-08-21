@@ -12,10 +12,15 @@
 a = 5, b = 5
     
     Given that the average customers per hour is 4,
+    
     The probability that 1 customer comes within the next hour is 0.073263.
+    
     The probability that 2 customers comes within the next hour is 0.146525.
+    
     The probability that 3 customers comes within the next hour is 0.195367.
+    
     The probability that 4 customers comes within the next hour is 0.195367.
+    
 
     
     \begin{itemize}
@@ -52,10 +57,10 @@ a = 5, b = 5
     \end{tabular}
     \end{center}
     
-    \ttfamily 
+    {\ttfamily 
         def f(n): \\
             if n <= 0: \\
                 return 1 \\
             
-            return n * f(n - 1)
+            return n * f(n - 1)}
 \end{document}
