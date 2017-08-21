@@ -1,0 +1,53 @@
+? get ideas from doc
+
+make possible to import preprocessors from preset using python import statements.
+
+get useful util stuff from docstring generator
+    
+SP SC shortcut-processed latex
+    better fraction detection that uses brackets, and remove those brackets automatically
+    
+SP eval python expr
+SP DEF define python function that is usable in exec and SP
+SP CLASS define python class
+SP EX executes python code
+SP SAVE save into a var
+SP FOR or something that does printf-like stuff
+common ones like list, enum, item, section, title, figures, table, equation, 
+auto cap, auto correct, auto line break
+noindent for all
+all the equ stuff from 240
+convert python dict, 2d array, csv etc into table
+
+a better keyword like @ or $ or # instead of SP
+
+? search up the use of \hline
+
+a bunch of functions used for inline string processing, such as some math stuff
+
+more informative syntax error notice, instead of crashing compiler
+    add checks and mechanisms to allow exception abort
+    
+a global dictionary for use
+
+auto scan for additional config file present and import module from it, or including headers like cpp.
+also have a command INIT that put some init stuff needed such as listset for a document
+
+optimization: better compilation algorithm (ex. less '' + '')
+minor improvements such as make sure EX return don't have a final \n
+
+? search up existing ??? to latex compiler / preprocessor.
+
+tutorial for the use of:
+    var, global_data (can and should store style etc)
+    ans
+    put / put_line
+    chaining SP (ex. SP EQU SP SC)
+    writing own preprocessors
+    directly calling such as SP_UPPER().run(['hello']) in SP EX
+    rules for equation auto line break and auto align (skip the ones within brackets, and skip the ones that already have it)
+
+? issues:
+    you can't reference a function added with add_env in another function added with add_env.
+    
+    messing with global and doing multiple compilation at the same time might create bad things
