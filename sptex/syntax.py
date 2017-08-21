@@ -74,9 +74,13 @@ def put(string):
         
     var._return_string += str(string)
     
-def put_line(string):
-    put(string)
+def put_line(line):
+    put(line)
     put('\n')
+    
+def put_lines(lines):
+    for line in lines:
+        put_line(line)
     
 def SP(expr = ''):
     if len(expr) == 0:
