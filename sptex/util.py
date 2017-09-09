@@ -6,8 +6,9 @@ def list_dir(pattern):
     return glob.glob(pattern)   
 
 def read_file(path):
-    if not os.path.exists(path):
-        write_file(path, '')
+    if not os.path.isfile(path):
+        #  write_file(path, '')
+        return ''
 
     with open(path, encoding='utf-8-sig') as f:
         content = f.read()
