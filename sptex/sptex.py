@@ -6,28 +6,6 @@ from syntax import *
 def get_default_output_path(input_path):
     return input_path[:input_path.rfind('.')] + OUTPUT_EXTENSION
 
-def get_indent_match(lines):
-    result = [0 for i in range(len(lines))]
-    indent_stack = [] # element: (line index, indentation)
-    j = 0
-    for i in range(len(lines)):
-        line = lines[i]
-        if is_empty_line(line):
-            continue
-        
-        cur_indent = get_indentation_len(line)
-        while len(indent_stack) > 0 and top(indent_stack)[1] >= cur_indent:
-            result[indent_stack.pop()[0]] = j + 1
-        
-        indent_stack.append((i, cur_indent))
-        
-        j = i
-
-    for entry in indent_stack:
-        result[entry[0]] = j + 1
-            
-    return result
-
 def listify(lines, indent_match, start_row, end_row):
     row = start_row
     while row < end_row:

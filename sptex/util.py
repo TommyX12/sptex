@@ -139,3 +139,69 @@ def has_stripped_suffix(string, suffix):
         j -= 1
     
     return j < 0
+
+# result[i] = index of the first line below i that has indentation <= get_indentation_len(lines(i))
+def get_indent_match(lines):
+    result = [0 for i in range(len(lines))]
+    indent_stack = [] # element: (line index, indentation)
+    j = 0
+    for i in range(len(lines)):
+        line = lines[i]
+        if is_empty_line(line):
+            continue
+        
+        cur_indent = get_indentation_len(line)
+        while len(indent_stack) > 0 and top(indent_stack)[1] >= cur_indent:
+            result[indent_stack.pop()[0]] = j + 1
+        
+        indent_stack.append((i, cur_indent))
+        
+        j = i
+
+    for entry in indent_stack:
+        result[entry[0]] = j + 1
+            
+    return result
+
+MATCHING_BRACKET = {
+    '(': ')',
+    '[': ']',
+    '{': '}',
+    ')': '(',
+    ']': '[',
+    '}': '{',
+}
+
+def matching_bracket(c):
+    return MATCHING_BRACKET[c]
+
+# result[i] = index of the char that have matching bracket
+# !!!WARNING: this has not been tested
+def get_bracket_match(line):
+    l = len(line)
+    result = [0 for i in range(len(line))]
+    stacks = {
+        '(': [],
+        '[': [],
+        '{': [],
+    }
+    for i in range(len(line)):
+        c = line[i]
+        if c in '([{':
+            stacks[c].append(i)
+        
+        elif c in ')]}':
+            c = MATCHING_BRACKET[c]
+            stack = stacks[c]
+            if len(stack) > 0:
+                j = stack.pop()
+                result[i] = j
+                result[j] = i
+        
+    for c in stacks:
+        for i in stacks[c]:
+            result[i] = l
+            
+    return result
+
+
