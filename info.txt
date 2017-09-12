@@ -28,7 +28,8 @@ a better keyword like @ or $ or # instead of SP
 
 !!! a bunch of functions used for inline string processing, such as some math stuff. make inline preprocessing easier?
 
-!!! BUG: searching for matched parentheses will also count the ones that are in python string, which is not desirable.
+!!! BUG: searching for matched parentheses will also count the ones that are in python string, which is not desirable. TODO
+
 !!! how to deal with when indents become too much
 !!! multi line expressions?
 
