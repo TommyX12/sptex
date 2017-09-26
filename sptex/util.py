@@ -141,6 +141,20 @@ def has_stripped_suffix(string, suffix):
     
     return j < 0
 
+def regex_find(string, regex):
+    match_object = re.search(pattern, string)
+    if not match_object:
+        return -1
+    
+    return match_object.start
+
+def regex_find_range(string, regex):
+    match_object = re.search(pattern, string)
+    if not match_object:
+        return None
+    
+    return (match_object.start, match_object.end)
+
 # result[i] = index of the first line below i that has indentation <= get_indentation_len(lines(i))
 def get_indent_match(lines):
     result = [0 for i in range(len(lines))]

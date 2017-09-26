@@ -3,7 +3,10 @@ import re
 from util import *
 from fractions import *
 
-OUTPUT_EXTENSION = '.tex'
+OUTPUT_EXTENSIONS = {
+    '.sptex': '.tex',
+    '.spcls': '.cls',
+}
 MAIN_KEYWORD = 'SP'
 
 global_data = {}
@@ -279,10 +282,16 @@ class SP_DOCUMENT:
 class SP_PACKAGES:
     def run(self, lines):
         for i in range(len(lines)):
-            if is_empty_line(lines[i]):
+            line = lines[i].strip()
+            if is_empty_line(line):
                 continue
             
-            lines[i] = '\\usepackage{' + lines[i].strip() + '}'
+            ind = skip_word_char(line, 0)
+            package, arg = line[:ind], line[ind:].strip()
+            if len(arg) > 0:
+                arg = '[' + arg + ']'
+            
+            lines[i] = '\\usepackage' + arg + '{' + package + '}'
         
         return lines
     
@@ -368,6 +377,22 @@ class SP_TABLE:
             lines = SP_ENV('center').run(lines)
             
         return lines
+
+class SP_FIGURE:
+    def __init__(self, width = 110):
+        self.width = width
+    
+    def run(self, lines):
+        figure_path = lines[0].strip()
+        caption = lines[1].strip() if len(lines) > 1 else ''
+        
+        lines = [
+            '[ht!]',
+            '\\centering',
+            '\\includegraphics[width=' + str(self.width) + 'mm]{' + figure_path + '}',
+            '\\caption{' + caption + '\\label{overflow}}',
+        ]
+        return SP_ENV('figure').run(lines)
 
 class SP_EQU:
     def __init__(self,

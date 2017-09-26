@@ -4,7 +4,8 @@ from util import *
 from syntax import *
 
 def get_default_output_path(input_path):
-    return input_path[:input_path.rfind('.')] + OUTPUT_EXTENSION
+    old_extension = input_path[input_path.rfind('.'):]
+    return input_path[:input_path.rfind('.')] + OUTPUT_EXTENSIONS[old_extension]
 
 def listify(lines, indent_match, start_row, end_row):
     row = start_row
@@ -79,9 +80,9 @@ def main(argc, argv):
         return 1
     
     input_path = argv[1]
-    if not input_path.endswith('.sptex'):
-        print('invalid input file name extension.')
-        return 1
+    #  if not input_path.endswith('.sptex'):
+        #  print('invalid input file name extension.')
+        #  return 1
     
     output_path = argv[2] if argc == 3 else get_default_output_path(input_path)
     

@@ -22,6 +22,8 @@ noindent for all
 all the equ stuff from 240
 convert python dict, 2d array, csv etc into table
 
+? maybe auto request package for components
+
 a better keyword like @ or $ or # instead of SP
 
 ? search up the use of \hline
