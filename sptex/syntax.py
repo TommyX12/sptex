@@ -1,5 +1,6 @@
 import math
 import re
+import os
 from util import *
 from fractions import *
 
@@ -122,6 +123,17 @@ class SP_DEF:
         EXEC_ENGINE.get_current()._exec('\n'.join(lines))
         return []
 
+class SP_ALIAS:
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+        
+    def run(self, lines):
+        for i in range(len(lines)):
+            lines[i] = lines[i].replace(self.old, self.new)
+            
+        return lines
+
 class SP_CLASS:
     def run(self, lines):
         lines[0] = lines[0].lstrip()
@@ -204,6 +216,7 @@ class BracketReplace:
 SHORTCUT_LIST = [
     # <= and >=
     RegexReplace(r'<=', r'\\leq'),
+    RegexReplace(r'!=', r'\\neq'),
     RegexReplace(r'>=', r'\\geq'),
     
     # approximate equal
@@ -244,6 +257,9 @@ SHORTCUT_LIST = [
     # sum from i = a to b of f(x)
     RegexReplace(r'\b(sum|prod)\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\\1_{\2}^{\3}'),
     
+    # sum from i in R of f(x)
+    RegexReplace(r'\b(sum|prod)\s+(?:from\s+)?(.*?)\s+of\b', r'\\\1_{\2}'),
+    
     # limit at x to infinity of f(x)
     RegexReplace(r'\b(?:limit|lim)\s+(?:at\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\lim_{\1 \\to \2}'),
 ]
@@ -279,6 +295,22 @@ class SP_DOCUMENT:
         
         return lines
     
+class SP_INCLUDE:
+    def run(self, lines):
+        path = lines[0].strip()
+        
+        if not os.path.exists(path):
+            print('WARNING: include "{0}" does not exist'.format(path))
+            return []
+        
+        return read_file(path).split('\n')
+
+class SP_LEFTALIGN:
+    def run(self, lines):
+        lines[0] = lines[0].lstrip()
+        align_indentation(lines, 1, len(lines))
+        return lines
+    
 class SP_PACKAGES:
     def run(self, lines):
         for i in range(len(lines)):
@@ -305,6 +337,7 @@ class SP_LIST:
         self.bullet_char = bullet_char
         
     def run(self, lines):
+        first_indentation = get_indentation(lines[0])
         bullet_indent = None
         for i in range(1, len(lines)):
             line = lines[i]
@@ -400,7 +433,7 @@ class SP_EQU:
             aligned            = True,
             auto_line_break    = True,
             auto_align         = True,
-            auto_align_marks   = [ '=', '\\approx'],
+            auto_align_marks   = ['=', '\\approx', '\\leq', '\\geq', '<', '>', '\\neq'],
             auto_align_all     = False,
             whitespace_spacing = True):
         

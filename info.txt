@@ -21,6 +21,11 @@ auto cap, auto correct, auto line break
 noindent for all
 all the equ stuff from 240
 convert python dict, 2d array, csv etc into table
+SP VAR make variable, and only available (basically replacement) for lines after it.
+
+numbered sections, subsections, etc.
+
+SP INCLUDE include a file's content. enable possibility for searching in local file.
 
 ? maybe auto request package for components
 
@@ -31,6 +36,8 @@ a better keyword like @ or $ or # instead of SP
 !!! a bunch of functions used for inline string processing, such as some math stuff. make inline preprocessing easier?
 
 !!! BUG: searching for matched parentheses will also count the ones that are in python string, which is not desirable. TODO
+!!! bug: equation autoalign all does not work properly.
+!!! bug: without empty indent, the exported does not contain blank line
 
 !!! how to deal with when indents become too much
 !!! multi line expressions?

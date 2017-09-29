@@ -37,8 +37,8 @@ def listify(lines, indent_match, start_row, end_row):
             lines[row] += ')'
         
         else:
-            #  result = ['\'\'']
-            result = ['\'\''] if row == start_row else []
+            result = ['\'\'']
+            #  result = ['\'\''] if row == start_row else []
             #  lines[row] = escape_script_string(lines[row])
             # manually search to find SP(...). replace them with ' + SP(...) + '. only allow search inline
             i = 0
@@ -79,7 +79,10 @@ def main(argc, argv):
         print('usage: python {0} input_path [output_path]'.format(argv[0]))
         return 1
     
-    input_path = argv[1]
+    cwd = os.getcwd()
+    
+    os.chdir(cwd)
+    input_path = os.path.abspath(argv[1])
     #  if not input_path.endswith('.sptex'):
         #  print('invalid input file name extension.')
         #  return 1
@@ -87,6 +90,7 @@ def main(argc, argv):
     output_path = argv[2] if argc == 3 else get_default_output_path(input_path)
     
     input_text = read_file(input_path)
+    os.chdir(os.path.dirname(input_path))
     output_text = compile(input_text)
     
     write_file(output_path, output_text)
