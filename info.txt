@@ -23,9 +23,16 @@ all the equ stuff from 240
 convert python dict, 2d array, csv etc into table
 SP VAR make variable, and only available (basically replacement) for lines after it.
 
+matrix and column vectors
+case
+
+!!! solve the case when EQU auto line break breaks stuff in lower level SP too. maybe only limit to the same indentation?
+
 numbered sections, subsections, etc.
 
 SP INCLUDE include a file's content. enable possibility for searching in local file.
+
+conditionals and variables, including inline conditionals 
 
 ? maybe auto request package for components
 

@@ -130,7 +130,7 @@ class SP_ALIAS:
         
     def run(self, lines):
         for i in range(len(lines)):
-            lines[i] = lines[i].replace(self.old, self.new)
+            lines[i] = re.sub(self.old, self.new, lines[i])
             
         return lines
 
@@ -233,6 +233,12 @@ SHORTCUT_LIST = [
     
     # ...
     RegexReplace(r'\.\.\.', r'\\hdots'),
+    
+    # arrows
+    RegexReplace(r'-\>', r'\\to'),
+    RegexReplace(r'=\>', r'\\Rightarrow'),
+    RegexReplace(r'\<=', r'\\Leftarrow'),
+    RegexReplace(r'\<=\>', r'\\Leftrightarrow'),
     
     # (n)C(k) combination
     RegexReplace(r'(\b\w+|\{[^\{\}]*\})C(\w+\b|\{[^\{\}]*\})', r'\\binom{\1}{\2}'),
