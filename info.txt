@@ -22,6 +22,7 @@ noindent for all
 all the equ stuff from 240
 convert python dict, 2d array, csv etc into table
 SP VAR make variable, and only available (basically replacement) for lines after it.
+    also have a separate parameter for using regex or not.
 
 matrix and column vectors
 case
