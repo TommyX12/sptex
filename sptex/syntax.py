@@ -333,6 +333,10 @@ class SP_PACKAGES:
         
         return lines
     
+class SP_COMMENT:
+    def run(self, lines):
+        return []
+    
 class SP_BODY:
     def run(self, lines):
         return SP_ENV('document').run(lines)

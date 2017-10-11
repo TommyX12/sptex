@@ -9,6 +9,7 @@ better script execution environment: put exec engine in its own module.
 SP SC shortcut-processed latex
     !!! better fraction detection that uses parenthesis, and remove them parenthesis automatically
     !!! the left and right thing of brackets. detect automatically
+    !!! and, or, not, union, intersection
     
 SP eval python expr
 SP DEF define python function that is usable in exec and SP
