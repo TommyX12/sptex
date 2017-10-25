@@ -73,7 +73,6 @@ def compile(input_text):
     # second pass:
     return '\n'.join(eval_lines(lines))
 
-
 def main(argc, argv):
     if argc < 2 or argc > 3:
         print('usage: python {0} input_path [output_path]'.format(argv[0]))

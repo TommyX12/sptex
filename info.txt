@@ -28,6 +28,8 @@ SP VAR make variable, and only available (basically replacement) for lines after
 matrix and column vectors
 case
 
+!!! use OOP concepts where each topic is a class?
+
 !!! solve the case when EQU auto line break breaks stuff in lower level SP too. maybe only limit to the same indentation?
 
 numbered sections, subsections, etc.
