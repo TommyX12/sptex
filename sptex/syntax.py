@@ -342,9 +342,10 @@ class SP_BODY:
         return SP_ENV('document').run(lines)
     
 class SP_LIST:
-    def __init__(self, ordered = False, bullet_char = '-'):
+    def __init__(self, ordered = False, bullet_char = '-', spacing = '1em'):
         self.ordered     = ordered
         self.bullet_char = bullet_char
+        self.spacing     = spacing
         
     def run(self, lines):
         first_indentation = get_indentation(lines[0])
@@ -358,6 +359,8 @@ class SP_LIST:
         if bullet_indent != None:
             for i in range(1, len(lines)):
                 lines[i] = re.sub(r'^{0}{1}'.format(bullet_indent, self.bullet_char), bullet_indent + '\\item ', lines[i])
+        
+        lines.insert(0, '\\setlength\\itemsep{' + self.spacing + '}')
         
         env = 'enumerate' if self.ordered else 'itemize'
         
@@ -418,6 +421,22 @@ class SP_TABLE:
         lines = SP_ENV('tabular').run(lines)
         if self.centered:
             lines = SP_ENV('center').run(lines)
+            
+        return lines
+
+class SP_MATRIX:
+    def __init__(self,
+            flag            = "b",
+            auto_line_break = True):
+        
+        self.flag            = flag
+        self.auto_line_break = auto_line_break
+    
+    def run(self, lines):
+        if self.auto_line_break:
+            lines = SP_AUTOBR(1, len(lines)).run(lines)
+        
+        lines = SP_ENV(self.flag + 'matrix').run(lines)
             
         return lines
 
@@ -510,7 +529,7 @@ class SP_EQU:
             pass
         
         else:
-            lines[0] = indented_insert(lines[0], '\\tag{{0}} '.format(self.tag))
+            lines[0] = indented_insert(lines[0], '\\tag{%s} ' % (self.tag))
         
         return SP_ENV(env).run(lines)
 
