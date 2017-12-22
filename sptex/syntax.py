@@ -340,6 +340,14 @@ class SP_COMMENT:
 class SP_BODY:
     def run(self, lines):
         return SP_ENV('document').run(lines)
+
+class SP_INDENT:
+    def __init__(self, margin = '1.5em'):
+        self.margin = margin
+    
+    def run(self, lines):
+        lines.insert(0, '[' + self.margin + ']{0em}')
+        return SP_ENV('addmargin').run(lines)
     
 class SP_LIST:
     def __init__(self, ordered = False, bullet_char = '-', spacing = '1em'):
@@ -360,7 +368,8 @@ class SP_LIST:
             for i in range(1, len(lines)):
                 lines[i] = re.sub(r'^{0}{1}'.format(bullet_indent, self.bullet_char), bullet_indent + '\\item ', lines[i])
         
-        lines.insert(0, '\\setlength\\itemsep{' + self.spacing + '}')
+        if self.spacing is not None:
+            lines.insert(0, '\\setlength\\itemsep{' + self.spacing + '}')
         
         env = 'enumerate' if self.ordered else 'itemize'
         
