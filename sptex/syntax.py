@@ -249,7 +249,7 @@ SHORTCUT_LIST = [
     #  BracketReplace('#(1) / #(2)', '\\frac{#(1)}{#(2)}')
     
     # infinity
-    RegexReplace(r'\b(?:infty|inf|infinity)\b', r'\\infty'),
+    #  RegexReplace(r'\b(?:infty|inf|infinity)\b', r'\\infty'),
     
     # integrate from a to b of f(x) dx
     RegexReplace(r'\b(?:integral|int|integrate)\s+(?:from\s+)?(.*?)\s+to\s+(.*?)\s+of\b', r'\\int_{\1}^{\2}'),
@@ -350,7 +350,7 @@ class SP_INDENT:
         return SP_ENV('addmargin').run(lines)
     
 class SP_LIST:
-    def __init__(self, ordered = False, bullet_char = '-', spacing = '1em'):
+    def __init__(self, ordered = False, bullet_char = '-', spacing = '0.5em'):
         self.ordered     = ordered
         self.bullet_char = bullet_char
         self.spacing     = spacing

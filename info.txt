@@ -40,6 +40,8 @@ conditionals and variables, including inline conditionals
 
 ? maybe auto request package for components
 
+? add the functionality to save SP() eval to separate variables.
+
 a better keyword like @ or $ or # instead of SP
 
 ? search up the use of \hline
